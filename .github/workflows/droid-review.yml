@@ -17,15 +17,13 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Droid
-        run: pip install factory-droid
+      - name: Install dependencies
+        run: pip install requests
 
-      - name: Run Scan
-        run: |
-          droid scan \
-            --repo-path . \
-            --policy .droid/databricks_lakehouse_policy.md \
-            --output report.json
+      - name: Run Droid Scan
+        env:
+          DROID_API_KEY: ${{ secrets.DROID_API_KEY }}
+        run: python .droid/run_droid_scan.py
 
       - name: Generate CSV
         id: generate_report
