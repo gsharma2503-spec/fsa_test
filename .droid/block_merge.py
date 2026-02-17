@@ -4,7 +4,7 @@ with open("report.json") as f:
     data = json.load(f)
 
 if data["status"] == "FAIL":
-    print("PR BLOCKED — Issues detected")
+    print("\nPR BLOCKED — Critical issues detected\n")
     for i in data.get("issues", []):
         if i["severity"] == "CRITICAL":
             print(f"{i['file']}:{i['line']} -> {i['message']}")
