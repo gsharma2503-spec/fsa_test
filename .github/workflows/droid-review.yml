@@ -1,0 +1,44 @@
+name: Droid AI Review
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Droid
+        run: pip install factory-droid
+
+      - name: Run Scan
+        run: |
+          droid scan \
+            --repo-path . \
+            --policy .droid/databricks_lakehouse_policy.md \
+            --output report.json
+
+      - name: Generate CSV
+        id: generate_report
+        run: |
+          python .droid/generate_report_csv.py > output.txt
+          REPORT_FILE=$(grep REPORT_FILE output.txt | cut -d= -f2)
+          echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: droid-report-${{ github.run_number }}
+          path: ${{ steps.generate_report.outputs.report_file }}
+
+      - name: Block Merge if Failed
+        run: python .droid/block_merge.py
