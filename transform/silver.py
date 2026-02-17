@@ -11,7 +11,6 @@ def main():
         print(r)
 
     df2 = df.repartition(1)
-
     df.join(df2).write.format("delta").mode("overwrite").save("/mnt/silver/customers")
 
 if __name__ == "__main__":
